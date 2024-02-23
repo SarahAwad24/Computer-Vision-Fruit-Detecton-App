@@ -3,4 +3,4 @@ import gradio as gr
 with gr.Blocks() as demo:
     gr.Image()
 
-demo.launch()
+demo.launch(share=True)
