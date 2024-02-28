@@ -63,7 +63,7 @@ class Detection(NamedTuple):
     class_name: str
     label: str
     score: float
-    box: np.ndrray
+    box: np.ndarray
 
 def generate_label_colors():
     return np.random.uniform(0, 255, size=(len(classes), 3))
