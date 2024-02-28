@@ -16,7 +16,7 @@ class Detection(NamedTuple):
 # Path setup
 HERE = Path(__file__).parent
 ROOT = HERE.parent
-MODEL_PATH = "C:/Users/sarah/OneDrive/Documents/GitHub/Computer-Vision/best.pt"
+MODEL_PATH = "C:\Users\sarah\OneDrive\Documents\GitHub\Computer-Vision\best.pt"
 
 # Load model
 cache_key = "object_detection_model"
