@@ -10,6 +10,8 @@ from pathlib import Path
 from typing import List, NamedTuple, Tuple
 import cv2
 import torch
+from ultralytics import YOLO 
+
 
 import torch
 
