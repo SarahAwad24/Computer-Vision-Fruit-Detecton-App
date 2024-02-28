@@ -14,8 +14,13 @@ from ultralytics import YOLO
 
 
 import torch
+from pathlib import Path
 
-# Assuming your model is a PyTorch model
+from pathlib import Path
+
+HERE = Path(__file__).parent
+ROOT = HERE.parent
+
 MODEL_PATH = ROOT / "best.pt"
 
 
