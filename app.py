@@ -1,11 +1,17 @@
 import streamlit as st
 import numpy as np
-from pathlib import Path
-from typing import List, NamedTuple
 import av
 import torch
-from ultralytics import YOLO  # Assumed correct import based on context; typically, it's yolov5 for ultralytics
+from ultralytics import YOLO  # Adjust based on the actual import from ultralytics
 import cv2
+import logging
+import queue
+from pathlib import Path
+from typing import NamedTuple
+from streamlit_webrtc import WebRtcMode, webrtc_streamer
+
+# Assume this script is being run in the project directory where the model is stored.
+# For deployment, ensure the model path is relative to the project structure and correctly set.
 
 # Define detection namedtuple
 class Detection(NamedTuple):
@@ -13,38 +19,38 @@ class Detection(NamedTuple):
     score: float
     box: np.ndarray
 
-# Path setup
-HERE = Path(__file__).parent
-ROOT = HERE.parent
-MODEL_PATH = "C:/Users/sarah/OneDrive/Documents/GitHub/Computer-Vision/best.pt"
+# UI elements
+score_threshold = st.slider("Score threshold", 0.0, 1.0, 0.5, 0.05)
+result_queue = queue.Queue()
+
+# Path setup - Check if the model path needs to be environment-specific
+MODEL_PATH = Path.cwd() / "best.pt"  # Adjusted to current working directory for simplicity
+
+# Confirm model path exists, else raise error
+if not MODEL_PATH.exists():
+    st.error(f"Model file not found at {MODEL_PATH}")
+    st.stop()  # Stop execution if model file is not found
 
 # Load model
 cache_key = "object_detection_model"
 if cache_key in st.session_state:
     model = st.session_state[cache_key]
 else:
-    model = YOLO(MODEL_PATH)  # Assumed usage; adjust based on actual ultralytics API
+    model = YOLO(str(MODEL_PATH))  # Ensure the path is converted to string for compatibility
     st.session_state[cache_key] = model
-
-# UI elements
-score_threshold = st.slider("Score threshold", 0.0, 1.0, 0.5, 0.05)
-result_queue = queue.Queue()
 
 # Adjust video processing to work with your PyTorch model
 def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
     image = frame.to_ndarray(format="bgr24")
-
-    # Convert image for model input
-    results = model(image)
+    results = model(image)  # Model inference
 
     # Process results
     detections = [
         Detection(
-            class_name=res['name'],
+            class_name=res['class_name'],
             score=res['confidence'],
             box=res['box']
-        )
-        for res in results.xyxy[0]  # Adjust based on how results are structured
+        ) for res in results.xyxy[0]  # Adjust based on results structure
     ]
 
     # Render bounding boxes and captions
