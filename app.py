@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import List, NamedTuple, Tuple
 import cv2
 import torch
+from ultralytics import YOLO
 
 HERE = Path(__file__).parent
 ROOT = HERE
@@ -59,10 +60,10 @@ CLASSES = [
     "walnut"
 ]
 # Load YOLO model
-net = cv2.dnn.readNetFromDarknet(str(HERE / "yolov4.cfg"), str(MODEL_PATH))
-net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
-net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
-
+#net = cv2.dnn.readNetFromDarknet(str(HERE / "yolov8m.cfg"), str(MODEL_PATH))
+#net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
+#net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
+model = YOLO(MODEL_PATH)
 score_threshold = st.slider("Score threshold", 0.0, 1.0, 0.5, 0.05)
 
 # Setup the result queue
