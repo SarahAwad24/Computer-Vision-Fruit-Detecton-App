@@ -75,6 +75,7 @@ def generate_label_colors():
 
 COLORS = generate_label_colors()
 
+cache_key = "object_detection_model"
 if cache_key in st.session_state:
     model = st.session_state[cache_key]
 else:
