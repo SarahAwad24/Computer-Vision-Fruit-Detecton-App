@@ -11,8 +11,15 @@ from typing import List, NamedTuple, Tuple
 import cv2
 import torch
 
+HERE = Path(__file__).parent
+ROOT = HERE
 
-classes = [
+logger = logging.getLogger(__name__)
+
+MODEL_PATH = ROOT / "best.pt"
+
+
+CLASSES = [
     "Apple",
     "Banana",
     "Beetroot",
@@ -51,6 +58,15 @@ classes = [
     "almond",
     "walnut"
 ]
+# Load YOLO model
+net = cv2.dnn.readNetFromDarknet(str(HERE / "yolov4.cfg"), str(MODEL_PATH))
+net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
+net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
+
+score_threshold = st.slider("Score threshold", 0.0, 1.0, 0.5, 0.05)
+
+# Setup the result queue
+result_queue = queue.Queue()
 
 class Detection(NamedTuple):
     class_name: str
@@ -66,7 +82,7 @@ class Detection(NamedTuple):
 
 
 
-## This is the function for the Video Frame
+# Define the callback function for video frames
 def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
     image = frame.to_ndarray(format="bgr24")
 
@@ -113,3 +129,19 @@ def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
 
     return av.VideoFrame.from_ndarray(image, format="bgr24")
 
+# Setup the WebRTC streamer
+webrtc_ctx = webrtc_streamer(
+    key="object-detection",
+    mode=WebRtcMode.SENDRECV,
+    video_processor_factory=video_frame_callback,
+)
+
+# Add a button for taking a snapshot
+if st.button("Take Snapshot"):
+    if not webrtc_ctx.state.playing:
+        st.warning("No video stream is running!")
+    else:
+        snapshot = result_queue.get()
+        # Output the data frame or do any other processing with the snapshot
+        # For example:
+        st.dataframe(snapshot)
