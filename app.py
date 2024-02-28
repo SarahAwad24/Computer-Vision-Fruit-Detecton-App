@@ -12,7 +12,12 @@ from streamlit_webrtc import WebRtcMode, webrtc_streamer
 
 # Assume this script is being run in the project directory where the model is stored.
 # For deployment, ensure the model path is relative to the project structure and correctly set.
+def main():
+    st.header("Webcam Live Feed")
+    webrtc_streamer(key="example")
 
+if __name__ == "__main__":
+    main()
 # Define detection namedtuple
 class Detection(NamedTuple):
     class_name: str
