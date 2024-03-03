@@ -186,7 +186,8 @@ def get_labels_and_fruits(results):
             name = r.names[cls]
             if name in class_names and name not in fruits:
                 fruits.append(name)
-    return labels, fruits
+    df = pd.DataFrame({'Detected Labels': labels, 'Detected Fruits': fruits})
+    return df
 
 
 # Set Streamlit page configuration
