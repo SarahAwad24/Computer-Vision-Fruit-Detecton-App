@@ -117,6 +117,9 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
 
             # Perform object detection - assuming your model has a similar API to Ultralytics YOLO
             results = model.predict(img, conf=confidence_threshold, max_det=max_detections, device=DEVICE)
+            
+            # Print results to inspect its structure
+            print(results)
 
             # Visualization and conversion to NumPy for display - assuming results have .render() method
             frame = np.squeeze(results.render())
