@@ -1,5 +1,4 @@
 import streamlit as st
-from utils import *
 import os
 import io
 import cv2
@@ -157,8 +156,6 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
         # Release the video capture object and remove the temp file
         cap.release()
         os.remove(temp_video_path)
-
-
 
 
 # Set Streamlit page configuration
