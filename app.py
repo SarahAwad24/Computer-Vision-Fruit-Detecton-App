@@ -101,11 +101,9 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int) -
         labels, fruits = get_labels_and_fruits(results)
     
     # Convert labels and fruits to pandas Series for a nicer display
-        labels_series = pd.Series(labels, name="Detected Labels")
         fruits_series = pd.Series(fruits, name="Detected Fruits")
 
     # Display as tables
-        st.table(labels_series.to_frame())
         st.table(fruits_series.to_frame())
 
         goal_dicc = {
