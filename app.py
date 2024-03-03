@@ -137,6 +137,7 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
 
 
 
+
 # Set Streamlit page configuration
 st.set_page_config(
     page_title=" Welcome to Nutrivision",
