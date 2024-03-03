@@ -200,6 +200,7 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
     if st.button("Get Labels and Fruits"):
         labels, fruits = get_labels_and_fruits(results)
         st.write("Detected Fruits:", fruits)
+        st.write("Detected Labels:", labels)
 
 
 def get_labels_and_fruits(results):
