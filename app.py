@@ -106,7 +106,57 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int, c
 
 
 # Function for real-time object detection in a video stream
+def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: float,
+                 max_detections: int, class_ids: list) -> None:
+    """
+    Performs real-time object detection in a video stream.
 
+    Args:
+        uploaded_video (Union[None, io.BytesIO]): Uploaded video file.
+        confidence_threshold (float): Confidence threshold for object detection.
+        max_detections (int): Maximum number of detections.
+        class_ids (list): List of class names to consider for detection.
+    """
+    
+    # Check if a video is uploaded
+    if uploaded_video is not None:
+        # Create a temporary file to save the uploaded video
+        temp_video_path = 'temp_video.mp4'
+
+        # Write uploaded video content to the temporary file
+        with open(temp_video_path, "wb") as temp_video_file:
+            temp_video_file.write(uploaded_video.getbuffer())
+
+        # Open the uploaded video file
+        cap = cv2.VideoCapture(temp_video_path)
+
+        # Define class indices based on selected names
+        class_indices = [class_names.index(name) for name in class_ids if name in class_names]
+
+        # Display for video feed
+        stframe = st.empty()
+
+        # Process the video frame by frame
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+            
+            # Convert frame to PIL Image
+            img = Image.fromarray(frame)
+
+            # Perform object detection - assuming your model has a similar API to Ultralytics YOLO
+            results = model.predict(img, conf=confidence_threshold, max_det=max_detections, classes=class_indices, device=DEVICE)
+
+            # Visualization and conversion to NumPy for display - assuming results have .render() method
+            frame = np.squeeze(results.render())
+
+            # Update the frame in the Streamlit app
+            stframe.image(frame, channels="BGR", use_column_width=True)
+
+        # Release the video capture object and remove the temp file
+        cap.release()
+        os.remove(temp_video_path)
 
 
 
@@ -142,8 +192,6 @@ elif source == "Video":
 # Confidence threshold and max detections sliders
 confidence_threshold = st.sidebar.slider("Confidence Threshold", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
 max_detections = st.sidebar.slider("Max Detections", min_value=1, max_value=500, value=300, step=1)
-
-
 
 class_names = [
     "Apple", "Banana", "Beetroot", "Bitter Gourd", "Bottle Gourd", "Cabbage",
