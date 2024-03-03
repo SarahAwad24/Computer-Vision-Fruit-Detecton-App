@@ -108,7 +108,7 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int) -
                 '3': 'maintain weight'
             }
             
-            st.radio("Select your goal", goal_dicc, horizontal=True)
+            st.radio("Select your goal", list(goal_dicc.keys()), format_func=lambda x: goal_dicc[x], horizontal=True)
 
 # Function for real-time object detection in a video stream
 def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: float,
