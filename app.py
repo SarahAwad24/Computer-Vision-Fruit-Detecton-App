@@ -101,14 +101,13 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int) -
     if st.button("Get Labels and Fruits"):
             labels, fruits = get_labels_and_fruits(results)
             st.write("Detected Fruits:", fruits)
-            st.write("<div style='text-align: center;'>Select your goal</div>", unsafe_allow_html=True)
             goal_dicc = {
                 '1': 'lose weight',
                 '2': 'gain weight',
                 '3': 'maintain weight'
             }
             
-            st.write("<div style='text-align: center;'>", st.radio("Select your goal", list(goal_dicc.keys()), format_func=lambda x: goal_dicc[x], horizontal=True), "</div>", unsafe_allow_html=True)
+            st.radio("Select your goal", list(goal_dicc.keys()), format_func=lambda x: goal_dicc[x], horizontal=True)
 
 # Function for real-time object detection in a video stream
 def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: float,
