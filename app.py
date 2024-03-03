@@ -39,7 +39,8 @@ def main():
     uploaded_file = st.file_uploader("Choose a video...", type=["mp4", "avi"])
 
     # Assuming your model is trained and saved as 'best.pt'
-    model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt')
+    #load best.pt model
+    model = torch.load('best.pt')
     model.eval()
 
     if uploaded_file is not None:
