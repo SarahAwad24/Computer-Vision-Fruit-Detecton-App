@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import *
+from utils import image_detect, video_detect, remove_temp
 
 
 # Set Streamlit page configuration
