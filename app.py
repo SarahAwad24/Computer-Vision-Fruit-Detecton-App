@@ -19,10 +19,10 @@ def main():
 
     # Display logo
     image = Image.open('logo.jpg')
-    st.image(image, use_column_width=True)
+    st.image(image, use_column_width=False, width=200, caption='Nutrivision')
 
     st.markdown("""
-    <style>.title {text-align: center;}</style><h1 class="title">Live Fuel Leakage Monitoring</h1>
+    <style>.title {text-align: center;}</style><h1 class="title">Filler</h1>
     """, unsafe_allow_html=True)
 
     CLASSES = [
