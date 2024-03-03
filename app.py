@@ -18,7 +18,7 @@ def main():
     st.set_page_config(page_title='Nutrivision', page_icon='🍎', layout='centered', initial_sidebar_state='auto')
 
     # Display logo
-    image = Image.open('C:/Users/sarah/OneDrive/Documents/GitHub/Computer-Vision-Deep-Learning/logo.jpg')
+    image = Image.open('logo.jpg')
     st.image(image, use_column_width=True)
 
     st.markdown("""
