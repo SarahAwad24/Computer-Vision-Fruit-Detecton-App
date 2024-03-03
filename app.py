@@ -20,8 +20,7 @@ def main():
 
     st.title('Fruit Detection in Video')
     uploaded_file = st.file_uploader("Choose a video...", type=["mp4", "avi"])
-    model_path = Path(settings.DETECTION_MODEL)
-
+    model_path = 'best.pt'
     try:
         model = helper.load_model(model_path)
     except Exception as ex:
