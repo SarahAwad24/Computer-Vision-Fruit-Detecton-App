@@ -19,10 +19,19 @@ def main():
 
     # Display logo
     image = Image.open('logo.jpg')
-    st.image(image, use_column_width=False, width=200, caption='Nutrivision')
+    with st.beta_container():
+        st.image(image, use_column_width=False, width=500, output_format='auto')
+        st.markdown("""
+            <style>
+            .stImage {
+                display: flex;
+                justify-content: center;
+            }
+            </style>
+        """, unsafe_allow_html=True)
 
     st.markdown("""
-    <style>.title {text-align: center;}</style><h1 class="title">Filler</h1>
+    <style>.title {text-align: center;}</style><h1 class="title">Welcome to Nutrivision</h1>
     """, unsafe_allow_html=True)
 
     CLASSES = [
