@@ -26,6 +26,16 @@ def main():
     <style>.title {text-align: center;}</style><h1 class="title">Live Fuel Leakage Monitoring</h1>
     """, unsafe_allow_html=True)
 
+    CLASSES = [
+    "Apple", "Banana", "Beetroot", "Bitter_Gourd", "Bottle_Gourd", "Cabbage",
+    "Capsicum", "Carrot", "Cauliflower", "Cherry", "Chilli", "Coconut",
+    "Cucumber", "EggPlant", "Ginger", "Grape", "Green_Orange", "Kiwi",
+    "Maize", "Mango", "Melon", "Okra", "Onion", "Orange", "Peach", "Pear",
+    "Peas", "Pineapple", "Pomegranate", "Potato", "Radish", "Strawberry",
+    "Tomato", "Turnip", "Watermelon", "walnut", "almond"
+]
+    COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
+
 
 if __name__ == "__main__":
     main()
