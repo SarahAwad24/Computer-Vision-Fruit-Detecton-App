@@ -7,6 +7,7 @@ from PIL import Image
 from typing import Union
 from ultralytics import YOLO
 import io
+import pandas as pd
 
 from ultralytics.utils.plotting import Annotator
 
@@ -36,7 +37,6 @@ def remove_temp(temp_file: str = 'temp') -> None:
     for file in os.listdir(temp_file):
         os.remove(os.path.join(temp_file, file))
     print(f"All files in '{temp_file}' have been removed.")
-
 
 
 # Function for downloading an image with detected objects
@@ -90,6 +90,12 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int) -
     # Offer download option for the detected image
     download_image(processed_image)
 
+    # Button to get labels and fruits
+    if st.button("Get Labels and Fruits"):
+        labels, fruits = get_labels_and_fruits(results)
+        st.write("Detected Labels:", labels)
+        st.write("Detected Fruits:", fruits)
+
 
 # Function for real-time object detection in a video stream
 def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: float,
@@ -129,12 +135,10 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
             if not ret:
                 break
 
-
             # Perform object detection - assuming your model has a similar API to Ultralytics YOLO
             results = model.predict(frame, conf=confidence_threshold, max_det=max_detections, device=DEVICE)
 
             for r in results:
-
                 annotator = Annotator(frame)
 
                 boxes = r.boxes
@@ -156,6 +160,34 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
         cap.release()
         os.remove(temp_video_path)
 
+        # Button to get labels and fruits
+        if st.button("Get Labels and Fruits"):
+            labels, fruits = get_labels_and_fruits(results)
+            st.write("Detected Labels:", labels)
+            st.write("Detected Fruits:", fruits)
+
+
+def get_labels_and_fruits(results):
+    labels = []
+    fruits = []
+    class_names = ['Apple', 'Almond', 'Banana', 'Beetroot', 'Bitter_Gourd', 'Bottle_Gourd', 'Cabbage', 'Capsicum',
+                   'Carrot', 'Cauliflower', 'Cherry', 'Chilli', 'Coconut', 'Cucumber', 'EggPlant',
+                   'Ginger', 'Grape', 'Green_Orange', 'Kiwi', 'Maize', 'Mango', 'Melon',
+                   'Okra', 'Onion', 'Orange', 'Peach', 'Pear', 'Peas', 'Pineapple', 'Pomegranate',
+                   'Potato', 'Radish', 'Strawberry', 'Tomato', 'Turnip', 'Walnut', 'Watermelon']
+    for r in results:
+        boxes = r.boxes
+        for box in boxes:
+            c = box.cls
+            labels.append(model.names[int(c)])
+        detection_count = r.boxes.shape[0]
+        for i in range(detection_count):
+            cls = int(r.boxes.cls[i].item())
+            name = r.names[cls]
+            if name in class_names and name not in fruits:
+                fruits.append(name)
+    return labels, fruits
+
 
 # Set Streamlit page configuration
 st.set_page_config(
@@ -169,7 +201,7 @@ st.set_page_config(
 st.title("Welcome to Nutrivision!")
 
 # Sidebar for selecting image source
-#insert image "logo.jpg" into sidebar
+# insert image "logo.jpg" into sidebar
 image = Image.open('logo.jpg')
 st.sidebar.image(image, use_column_width=True)
 st.sidebar.title("Model Settings")
@@ -186,11 +218,9 @@ if source == "Image":
 elif source == "Video":
     uploaded_video = st.sidebar.file_uploader("Choose a video...", type=["mp4"])
 
-
 # Confidence threshold and max detections sliders
 confidence_threshold = st.sidebar.slider("Confidence Threshold", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
 max_detections = st.sidebar.slider("Max Detections", min_value=1, max_value=500, value=300, step=1)
-
 
 # Perform object detection based on the selected source
 if uploaded_image is not None:
