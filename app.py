@@ -9,6 +9,7 @@ from pathlib import Path
 from utils.plots import plot_one_box
 from models.experimental import attempt_load
 from utils.general import non_max_suppression
+from utils.general import scale_coords
 
 
 
@@ -34,7 +35,7 @@ def main():
     uploaded_file = st.file_uploader("Choose a video...", type=["mp4", "avi"])
 
     # Assuming the model path is correctly set to where you uploaded your model
-    model_path = 'path/to/best (2).pt'  # Adjust this to your model's upload path
+    model_path = 'best.pt'  # Adjust this to your model's upload path
 
     # Load the YOLO model
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
