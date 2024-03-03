@@ -36,9 +36,18 @@ max_detections = st.sidebar.slider("Max Detections", min_value=1, max_value=500,
 
 # Add a multiselect widget
 
-# Convert selected names back to corresponding class IDs
-selected_class_ids = [class_id for class_id, class_name in classes.items() if class_name in selected_class_names]
 
+class_names = [
+    "Apple", "Banana", "Beetroot", "Bitter Gourd", "Bottle Gourd", "Cabbage",
+    "Capsicum", "Carrot", "Cauliflower", "Cherry", "Chilli", "Coconut",
+    "Cucumber", "EggPlant", "Ginger", "Grape", "Green Orange", "Kiwi",
+    "Maize", "Mango", "Melon", "Okra", "Onion", "Orange", "Peach", "Pear",
+    "Peas", "Pineapple", "Pomegranate", "Potato", "Radish", "Strawberry",
+    "Tomato", "Turnip", "Watermelon", "Walnut", "Almond"
+]
+
+# Implementing multiselect in Streamlit using the defined list
+selected_class_names = st.sidebar.multiselect('Select classes:', class_names, default=class_names[0])
 
 # Perform object detection based on the selected source
 if uploaded_image is not None:
