@@ -193,15 +193,29 @@ max_detections = st.sidebar.slider("Max Detections", min_value=1, max_value=500,
 
 
 # Perform object detection based on the selected source
-if uploaded_image is not None:
-    # Object detection for uploaded image
-    image_detect(image=uploaded_image, confidence_threshold=confidence_threshold,
-                 max_detections=max_detections)
-
-elif uploaded_video is not None:
-    # Object detection for uploaded video
-    video_detect(uploaded_video=uploaded_video, confidence_threshold=confidence_threshold,
-                 max_detections=max_detections)
-
-    # Remove temporary files
-    remove_temp()
+if st.button("Get Labels and Detected Fruits"):
+    if uploaded_image is not None:
+          # Define the "fruits" variable as an empty list
+        image_detect(image=uploaded_image, confidence_threshold=confidence_threshold,
+                     max_detections=max_detections)
+        fruits = []
+        st.write("Labels Detected in the Image:")
+        st.write(model.names)
+        st.write("Fruits Detected in the Image:")
+        # If fruits list is empty, display message
+        if not fruits:
+            st.write("No fruits detected in the image.")
+        else:
+            st.write(fruits)
+    elif uploaded_video is not None:
+        video_detect(uploaded_video=uploaded_video, confidence_threshold=confidence_threshold,
+                     max_detections=max_detections)
+        fruits = []
+        st.write("Labels Detected in the Video:")
+        st.write(model.names)
+        st.write("Fruits Detected in the Video:")
+        # If fruits list is empty, display message
+        if not fruits:
+            st.write("No fruits detected in the video.")
+        else:
+            st.write(fruits)
