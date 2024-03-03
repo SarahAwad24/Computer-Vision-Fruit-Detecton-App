@@ -67,21 +67,26 @@ def main():
 
             results = model(frame)
 
-            # Use your predefined classes to interpret the model's output
-            for *xyxy, conf, cls in results.xyxy[0]:
-                # Use FRUIT_CLASSES to get the actual fruit name
-                label = CLASSES[int(cls)]
-                detections_df = detections_df.append({
-                    'Frame': frame_number,
-                    'Fruit': label,
-                    'Confidence': conf,
-                    'x1': xyxy[0],
-                    'y1': xyxy[1],
-                    'x2': xyxy[2],
-                    'y2': xyxy[3]
-                }, ignore_index=True)
-
-            frame_number += 1
+        if len(results.xyxy[0]) > 0:
+    # Iterate over detections
+        for detection in results.xyxy[0]:
+        # Unpack detection tensor, converting tensor elements to Python scalars with .item()
+            x_min, y_min, x_max, y_max, conf, cls_id = detection[:6].cpu().numpy()
+            label = CLASSES[int(cls_id)]  # Get the class label using detected class ID
+        # Append detection info to your DataFrame as before
+            detections_df = detections_df.append({
+            'Frame': frame_number,
+            'Fruit': label,
+            'Confidence': conf,
+            'x1': x_min,
+            'y1': y_min,
+            'x2': x_max,
+            'y2': y_max
+            }, ignore_index=True)
+        else:
+    # Handle cases with no detections
+            print("No detections")
+            
 
         st.dataframe(detections_df)
 
