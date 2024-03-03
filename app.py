@@ -11,6 +11,8 @@ import streamlit as st
 from typing import Union
 from ultralytics import YOLO
 import yaml
+from typing import Union
+import io
 
 # Define the device to be used for computation
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -120,13 +122,18 @@ def video_detect(source: str, uploaded_video: Union[None, io.BytesIO], confidenc
     video_feed = st.empty()
 
     # Check if a video is uploaded or using webcam
-    if source == "video":
-        # Create a temporary file to save the uploaded video
-        temp_video_path = f"temp/temp_{uploaded_video.name}"
+    if source == "video" and uploaded_video is not None:
+        # Define the temporary file path
+        temp_video_dir = "temp"
+        temp_video_path = os.path.join(temp_video_dir, f"temp_{uploaded_video.name}")
+
+        # Create the temp directory if it doesn't exist
+        if not os.path.exists(temp_video_dir):
+            os.makedirs(temp_video_dir)
 
         # Write uploaded video content to the temporary file
         with open(temp_video_path, "wb") as temp_video_file:
-            temp_video_file.write(uploaded_video.getvalue())
+            temp_video_file.write(uploaded_video.getbuffer())  # Use getbuffer for io.BytesIO
 
         # Open the uploaded video file
         cap = cv2.VideoCapture(temp_video_path)
