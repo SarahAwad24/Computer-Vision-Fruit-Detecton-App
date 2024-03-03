@@ -130,6 +130,7 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
     if uploaded_video is not None:
         # Create a temporary file to save the uploaded video
         temp_video_path = 'temp_video.mp4'
+        output_video_path = 'processed_video.mp4'
 
         # Write uploaded video content to the temporary file
         with open(temp_video_path, "wb") as temp_video_file:
@@ -139,6 +140,9 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
         cap = cv2.VideoCapture(temp_video_path)
 
         # Display for video feed
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter(output_video_path, fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
+
         stframe = st.empty()
 
         # Process the video frame by frame
@@ -166,11 +170,12 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
                     if name in class_names and name not in fruits:
                         fruits.append(name)
                         print(fruits)
+            out.write(frame)
             stframe.image(frame, channels="BGR", use_column_width=True)
 
         # Release the video capture object and remove the temp file
         cap.release()
-        new_video = cap.release()
+        out.release()
 
         os.remove(temp_video_path)
 
@@ -180,7 +185,7 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
         # Show the original video
         st.video(uploaded_video, start_time=0)
     with col2:
-        st.video(new_video, start_time=0)
+        st.video(output_video_path, start_time=0)
 
         # Button to get labels and fruits
     if st.button("Get Labels and Fruits"):
