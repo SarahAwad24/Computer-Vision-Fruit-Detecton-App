@@ -1,8 +1,6 @@
 import streamlit as st
 from utils import *
-from utils import image_detect
-from utils import video_detect
-from utils import remove_temp
+
 
 # Set Streamlit page configuration
 st.set_page_config(
