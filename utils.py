@@ -9,6 +9,7 @@ import streamlit as st
 from typing import Union
 from pytube import YouTube
 from ultralytics import YOLO
+import yaml
 
 # Define the device to be used for computation
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
