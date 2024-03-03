@@ -8,6 +8,8 @@ from typing import Union
 from ultralytics import YOLO
 import io
 
+from ultralytics.utils.plotting import Annotator
+
 # Define the device to be used for computation
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -18,13 +20,23 @@ model = YOLO('best_no_transfer.pt')
 # Function for removing temporary files
 def remove_temp(temp_file: str = 'temp') -> None:
     """
-    Remove all files in the specified temporary directory.
+    Remove all files in the specified temporary directory. Creates the directory if it does not exist.
 
     Args:
         temp_file (str, optional): Path to the temporary directory. Defaults to 'temp'.
     """
+    # Check if the directory exists
+    if not os.path.exists(temp_file):
+        # Create the directory if it does not exist
+        os.makedirs(temp_file)
+        print(f"Directory '{temp_file}' was created")
+        return
+
+    # If the directory exists, proceed to remove files
     for file in os.listdir(temp_file):
         os.remove(os.path.join(temp_file, file))
+    print(f"All files in '{temp_file}' have been removed.")
+
 
 
 # Function for downloading an image with detected objects
@@ -90,7 +102,12 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
         confidence_threshold (float): Confidence threshold for object detection.
         max_detections (int): Maximum number of detections.
     """
-    
+    fruits = []
+    class_names = ['Apple', 'Almond', 'Banana', 'Beetroot', 'Bitter_Gourd', 'Bottle_Gourd', 'Cabbage', 'Capsicum',
+                   'Carrot', 'Cauliflower', 'Cherry', 'Chilli', 'Coconut', 'Cucumber', 'EggPlant',
+                   'Ginger', 'Grape', 'Green_Orange', 'Kiwi', 'Maize', 'Mango', 'Melon',
+                   'Okra', 'Onion', 'Orange', 'Peach', 'Pear', 'Peas', 'Pineapple', 'Pomegranate',
+                   'Potato', 'Radish', 'Strawberry', 'Tomato', 'Turnip', 'Walnut', 'Watermelon']
     # Check if a video is uploaded
     if uploaded_video is not None:
         # Create a temporary file to save the uploaded video
@@ -111,17 +128,28 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
             ret, frame = cap.read()
             if not ret:
                 break
-            
-            # Convert frame to PIL Image
-            img = Image.fromarray(frame)
+
 
             # Perform object detection - assuming your model has a similar API to Ultralytics YOLO
-            results = model.predict(img, conf=confidence_threshold, max_det=max_detections, device=DEVICE)
+            results = model.predict(frame, conf=confidence_threshold, max_det=max_detections, device=DEVICE)
 
-            # Visualization and conversion to NumPy for display - assuming results have .render() method
-            frame = np.squeeze(results.render())
+            for r in results:
 
-            # Update the frame in the Streamlit app
+                annotator = Annotator(frame)
+
+                boxes = r.boxes
+                for box in boxes:
+                    b = box.xyxy[0]  # get box coordinates in (left, top, right, bottom) format
+                    c = box.cls
+                    annotator.box_label(b, model.names[int(c)])
+                detection_count = r.boxes.shape[0]
+
+                for i in range(detection_count):
+                    cls = int(r.boxes.cls[i].item())
+                    name = r.names[cls]
+                    if name in class_names and name not in fruits:
+                        fruits.append(name)
+                        print(fruits)
             stframe.image(frame, channels="BGR", use_column_width=True)
 
         # Release the video capture object and remove the temp file
