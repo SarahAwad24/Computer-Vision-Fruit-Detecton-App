@@ -213,7 +213,7 @@ if uploaded_image is not None:
 
 elif uploaded_video:
     # Object detection for uploaded video
-    video_detect(source='video', uploaded_video=uploaded_video, confidence_threshold=confidence_threshold,
+    video_detect(uploaded_video=uploaded_video, confidence_threshold=confidence_threshold,
                  max_detections=max_detections, class_ids=selected_class_names)
 
     # Remove temporary files
