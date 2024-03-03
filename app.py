@@ -8,6 +8,15 @@ import helper
 from pathlib import Path
 
 
+import streamlit as st
+import pandas as pd
+import cv2
+import torch
+import tempfile
+from pathlib import Path
+import settings
+import helper
+
 def main():
     CLASSES = [
         "Apple", "Banana", "Beetroot", "Bitter Gourd", "Bottle Gourd", "Cabbage",
@@ -20,15 +29,19 @@ def main():
 
     st.title('Fruit Detection in Video')
     uploaded_file = st.file_uploader("Choose a video...", type=["mp4", "avi"])
-    model_path = 'best.pt'
+
+    model_path = Path(settings.DETECTION_MODEL)
+
     try:
+        # Assuming helper.load_model correctly loads a YOLOv5 model
         model = helper.load_model(model_path)
     except Exception as ex:
         st.error(f"Unable to load model. Check the specified path: {model_path}")
+        st.error(ex)
         return  # Exit if the model cannot be loaded
 
     if uploaded_file is not None:
-        tfile = tempfile.NamedTemporaryFile(delete=False)
+        tfile = tempfile.NamedTemporaryFile(delete=False) 
         tfile.write(uploaded_file.read())
         
         detections_df = pd.DataFrame(columns=['Frame', 'Fruit', 'Confidence', 'x1', 'y1', 'x2', 'y2'])
@@ -40,12 +53,16 @@ def main():
             if not ret:
                 break
 
-            results = model(frame)
+            # Convert frame to the format expected by the model (RGB and resized)
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            results = model(frame_rgb)
 
+            # Parse the detection results
             if len(results.xyxy[0]) > 0:
                 for detection in results.xyxy[0]:
-                    x_min, y_min, x_max, y_max, conf, cls_id = detection[:6].cpu().numpy()
-                    label = CLASSES[int(cls_id)]
+                    # Convert detection tensor to numpy array
+                    x_min, y_min, x_max, y_max, conf, cls_id = detection.cpu().numpy()[:6]
+                    label = CLASSES[int(cls_id)]  # Get class label from detection
                     detections_df = detections_df.append({
                         'Frame': frame_number,
                         'Fruit': label,
