@@ -99,28 +99,17 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int) -
 
     # Button to get labels and fruits
     if st.button("Get Labels and Fruits"):
-        labels, fruits = get_labels_and_fruits(results)
-        st.write("<div style='text-align: center;'>Detected Fruits:</div>", unsafe_allow_html=True)
-        fruits_table = pd.DataFrame(fruits, columns=["Fruit"])
-        st.table(fruits_table)
+            labels, fruits = get_labels_and_fruits(results)
+            st.write("Detected Fruits:", fruits)
+            st.write("<div style='text-align: center;'>Select your goal</div>", unsafe_allow_html=True)
+            goal_dicc = {
+                '1': 'lose weight',
+                '2': 'gain weight',
+                '3': 'maintain weight'
+            }
+            st.radio("Select your goal", list(goal_dicc.keys()), format_func=lambda x: goal_dicc[x])
     
-    st.write("<div style='text-align: center;'>Select your goal</div>", unsafe_allow_html=True)
-
-    goal_dicc = {
-        '1': 'lose weight',
-        '2': 'gain weight',
-        '3': 'maintain weight'
-    }
-    col1, col2, col3 = st.columns(3)
     
-    with col1:
-        st.write("")
-
-    with col2:
-        st.radio("Select your goal", list(goal_dicc.keys()), format_func=lambda x: goal_dicc[x])
-
-    with col3:
-        st.write("")
 
 
 # Function for real-time object detection in a video stream
