@@ -1,4 +1,4 @@
-from tkinter import Image
+from PIL import Image
 import streamlit as st
 import numpy as np
 import av
@@ -9,6 +9,8 @@ import logging
 import queue
 from pathlib import Path
 from typing import NamedTuple
+from const import CLASSES, COLORS
+
 
 # Assume this script is being run in the project directory where the model is stored.
 # For deployment, ensure the model path is relative to the project structure and correctly set.
