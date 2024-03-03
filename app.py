@@ -9,7 +9,6 @@ import logging
 import queue
 from pathlib import Path
 from typing import NamedTuple
-from const import CLASSES, COLORS
 
 
 # Assume this script is being run in the project directory where the model is stored.
