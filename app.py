@@ -100,8 +100,8 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int) -
     # Button to get labels and fruits
     if st.button("Get Labels and Fruits"):
             labels, fruits = get_labels_and_fruits(results)
-            st.subheader("Detected Fruits:", fruits)
-            st.subheader("<div style='text-align: center;'>Select your goal</div>", unsafe_allow_html=True)
+            st.write("Detected Fruits:", fruits)
+            st.write("<div style='text-align: center;'>Select your goal</div>", unsafe_allow_html=True)
             goal_dicc = {
                 '1': 'lose weight',
                 '2': 'gain weight',
