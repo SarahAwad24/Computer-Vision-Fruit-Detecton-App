@@ -12,7 +12,7 @@ import io
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Initialize YOLO model
-model = YOLO('best.pt')
+model = YOLO('best_no_transfer.pt')
 
 
 # Function for removing temporary files
