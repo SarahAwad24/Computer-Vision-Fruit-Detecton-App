@@ -1,6 +1,5 @@
 import streamlit as st
 from utils import *
-from utils import load_yaml
 from utils import image_detect
 from utils import video_detect
 from utils import remove_temp
