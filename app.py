@@ -14,6 +14,9 @@ import pandas as pd
 import cv2
 import torch
 import tempfile
+import settings
+import helper
+
 
 
 
@@ -38,10 +41,15 @@ def main():
 
     uploaded_file = st.file_uploader("Choose a video...", type=["mp4", "avi"])
 
-    # Assuming your model is trained and saved as 'best.pt'
-    #load best.pt model
-    model = torch.load('best.pt')
-    model.eval()
+    model_path = Path(settings.DETECTION_MODEL)
+
+# Load Pre-trained ML Model
+    try:
+        model = helper.load_model(model_path)
+    except Exception as ex:
+        st.error(f"Unable to load model. Check the specified path: {model_path}")
+        st.error(ex)
+    
 
     if uploaded_file is not None:
         tfile = tempfile.NamedTemporaryFile(delete=False) 
