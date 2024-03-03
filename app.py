@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import cv2
 import torch
+import numpy as np
 from PIL import Image
 from typing import Union
 from ultralytics import YOLO
@@ -35,6 +36,7 @@ def remove_temp(temp_file: str = 'temp') -> None:
     for file in os.listdir(temp_file):
         os.remove(os.path.join(temp_file, file))
     print(f"All files in '{temp_file}' have been removed.")
+
 
 
 # Function for downloading an image with detected objects
@@ -189,27 +191,38 @@ elif source == "Video":
 confidence_threshold = st.sidebar.slider("Confidence Threshold", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
 max_detections = st.sidebar.slider("Max Detections", min_value=1, max_value=500, value=300, step=1)
 
+
+# Perform object detection based on the selected source
 # Button to get labels and detected fruits
 if st.button("Get Labels and Detected Fruits"):
     if uploaded_image is not None:
         image_detect(image=uploaded_image, confidence_threshold=confidence_threshold,
                      max_detections=max_detections)
         st.write("Labels Detected in the Image:")
-        st.write(model.names)
+        detected_labels = set()
+        for fruit in fruits:
+            if fruit in model.names:
+                detected_labels.add(fruit)
+        st.write(detected_labels)
         st.write("Fruits Detected in the Image:")
         # If fruits list is empty, display message
-        if not fruits:
+        if not detected_labels:
             st.write("No fruits detected in the image.")
         else:
-            st.write(fruits)
+            st.write(detected_labels)
     elif uploaded_video is not None:
         video_detect(uploaded_video=uploaded_video, confidence_threshold=confidence_threshold,
                      max_detections=max_detections)
         st.write("Labels Detected in the Video:")
-        st.write(model.names)
+        detected_labels = set()
+        for fruit in fruits:
+            if fruit in model.names:
+                detected_labels.add(fruit)
+        st.write(detected_labels)
         st.write("Fruits Detected in the Video:")
         # If fruits list is empty, display message
-        if not fruits:
+        if not detected_labels:
             st.write("No fruits detected in the video.")
         else:
-            st.write(fruits)
+            st.write(detected_labels)
+
