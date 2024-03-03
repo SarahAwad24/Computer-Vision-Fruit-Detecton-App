@@ -80,19 +80,29 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int) -
 
 
 # Function for real-time object detection in a video stream
-def video_detect(uploaded_video: Union[None, bytes], confidence_threshold: float = 0.5) -> None:
+def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: float,
+                 max_detections: int) -> None:
     """
     Performs real-time object detection in a video stream.
 
     Args:
-        uploaded_video (Union[None, bytes]): Uploaded video file.
+        uploaded_video (Union[None, io.BytesIO]): Uploaded video file.
         confidence_threshold (float): Confidence threshold for object detection.
+        max_detections (int): Maximum number of detections.
     """
+    
     # Check if a video is uploaded
     if uploaded_video is not None:
-        # Convert bytes to OpenCV video capture
-        cap = cv2.VideoCapture(uploaded_video)
-        
+        # Create a temporary file to save the uploaded video
+        temp_video_path = 'temp_video.mp4'
+
+        # Write uploaded video content to the temporary file
+        with open(temp_video_path, "wb") as temp_video_file:
+            temp_video_file.write(uploaded_video.read())
+
+        # Open the uploaded video file
+        cap = cv2.VideoCapture(temp_video_path)
+
         # Display for video feed
         stframe = st.empty()
 
@@ -105,24 +115,18 @@ def video_detect(uploaded_video: Union[None, bytes], confidence_threshold: float
             # Convert frame to PIL Image
             img = Image.fromarray(frame)
 
-            # Perform object detection using YOLOv8
-            results = model(img, size=640)
-            # Filter results based on confidence threshold
-            results.filter(lambda x: x['confidence'] > confidence_threshold)
+            # Perform object detection - assuming your model has a similar API to Ultralytics YOLO
+            results = model.predict(img, conf=confidence_threshold, max_det=max_detections, device=DEVICE)
 
-            # Visualize detected objects
-            for detection in results.pred:
-                bbox = detection[:4]
-                label = detection[5]
-                conf = detection[4]
-                cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (0, 255, 0), 2)
-                cv2.putText(frame, f'{model.names[int(label)]} {conf:.2f}', (int(bbox[0]), int(bbox[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            # Visualization and conversion to NumPy for display - assuming results have .render() method
+            frame = np.squeeze(results.render())
 
             # Update the frame in the Streamlit app
             stframe.image(frame, channels="BGR", use_column_width=True)
 
-        # Release the video capture object
+        # Release the video capture object and remove the temp file
         cap.release()
+        os.remove(temp_video_path)
 
 
 # Set Streamlit page configuration
