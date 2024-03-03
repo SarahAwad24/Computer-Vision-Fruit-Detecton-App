@@ -102,7 +102,7 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int) -
 
 # Function for real-time object detection in a video stream
 def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: float,
-                 max_detections: int) -> None:
+                 max_detections: int, class_ids: list) -> None:
     """
     Performs real-time object detection in a video stream.
 
@@ -110,8 +110,8 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
         uploaded_video (Union[None, io.BytesIO]): Uploaded video file.
         confidence_threshold (float): Confidence threshold for object detection.
         max_detections (int): Maximum number of detections.
+        class_ids (list): List of class names to consider for detection.
     """
-    
     # Check if a video is uploaded
     if uploaded_video is not None:
         # Create a temporary file to save the uploaded video
@@ -123,6 +123,9 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
 
         # Open the uploaded video file
         cap = cv2.VideoCapture(temp_video_path)
+
+        # Define class indices based on selected names
+        class_indices = [class_names.index(name) for name in class_ids if name in class_names]
 
         # Display for video feed
         stframe = st.empty()
@@ -137,7 +140,7 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
             img = Image.fromarray(frame)
 
             # Perform object detection - assuming your model has a similar API to Ultralytics YOLO
-            results = model.predict(img, conf=confidence_threshold, max_det=max_detections, device=DEVICE)
+            results = model.predict(img, conf=confidence_threshold, max_det=max_detections, classes=class_indices, device=DEVICE)
 
             # Visualization and conversion to NumPy for display - assuming results have .render() method
             frame = np.squeeze(results.render())
