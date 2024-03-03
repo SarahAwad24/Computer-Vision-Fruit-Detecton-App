@@ -161,9 +161,12 @@ st.set_page_config(
 )
 
 # Title for the web app
-st.title("Streamlit Object Tracker with YOLOv8")
+st.title("Welcome to Nutrivision!")
 
 # Sidebar for selecting image source
+#insert image "logo.jpg" into sidebar
+image = Image.open('logo.jpg')
+st.sidebar.image(image, use_column_width=True)
 st.sidebar.title("Model Settings")
 source = st.sidebar.radio("Select source:", ("Image", "Video"))
 
