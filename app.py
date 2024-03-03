@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import image_detect, video_detect, remove_temp
+from utils import *
 
 
 # Set Streamlit page configuration
@@ -34,7 +34,6 @@ elif source == "Video":
 confidence_threshold = st.sidebar.slider("Confidence Threshold", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
 max_detections = st.sidebar.slider("Max Detections", min_value=1, max_value=500, value=300, step=1)
 
-# Add a multiselect widget
 
 
 class_names = [
