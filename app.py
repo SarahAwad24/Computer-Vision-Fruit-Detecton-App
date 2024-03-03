@@ -19,7 +19,7 @@ def main():
 
     # Display logo
     image = Image.open('logo.jpg')
-    with st.beta_container():
+    with st.container():
         st.image(image, use_column_width=False, width=500, output_format='auto')
         st.markdown("""
             <style>
