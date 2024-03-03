@@ -161,7 +161,7 @@ elif source == "Video":
 
 # Confidence threshold and max detections sliders
 confidence_threshold = st.sidebar.slider("Confidence Threshold", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
-max_detections = st.sidebar.slider("Max Detections", min_value=1, max_value=500, value=300, step=1)
+max_detections = st.sidebar.slider("Max Detections", min_value=1, max_value=100, value=50, step=1)
 
 
 # Perform object detection based on the selected source
