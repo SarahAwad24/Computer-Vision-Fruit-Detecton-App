@@ -175,5 +175,4 @@ elif uploaded_video is not None:
     video_detect(uploaded_video=uploaded_video, confidence_threshold=confidence_threshold,
                  max_detections=max_detections)
 
-    # Remove temporary files
     remove_temp()
