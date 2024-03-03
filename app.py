@@ -171,19 +171,28 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
                         fruits.append(name)
                         print(fruits)
             out.write(frame)
-            col1, col2 = st.columns(2)
 
-            with col1:
-        # Show the original video
-                st.video(uploaded_video, start_time=0)
-            with col2:
-                stframe.image(frame, channels="BGR", use_column_width=True)
+            cap.release()
+            out.release()
+            os.remove(temp_video_path)
+        
+        col1, col2 = st.columns(2)
+
+        with col1:
+        # Show the original video only after processing is complete
+            st.video(temp_video_path, start_time=0)
+
+        with col2:
+        # Display the processed video, not individual frames
+            st.video(output_video_path, start_time=0)
+
+        if st.button("Get Labels and Fruits"):
+        # Assume this function is defined elsewhere and works as expected
+        labels, fruits = get_labels_and_fruits(results)
+        st.write("Detected Fruits:", fruits)
 
         # Release the video capture object and remove the temp file
-        cap.release()
-        out.release()
 
-        os.remove(temp_video_path)
 
     
 
