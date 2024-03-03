@@ -35,9 +35,6 @@ confidence_threshold = st.sidebar.slider("Confidence Threshold", min_value=0.0, 
 max_detections = st.sidebar.slider("Max Detections", min_value=1, max_value=500, value=300, step=1)
 
 # Add a multiselect widget
-classes = load_yaml('classes.yaml')
-class_names = list(classes.values())
-selected_class_names = st.sidebar.multiselect('Select classes:', class_names, placeholder='Choose a class')
 
 # Convert selected names back to corresponding class IDs
 selected_class_ids = [class_id for class_id, class_name in classes.items() if class_name in selected_class_names]
