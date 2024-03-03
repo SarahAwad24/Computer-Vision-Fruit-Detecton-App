@@ -1,11 +1,13 @@
 import streamlit as st
 import os
 import cv2
+import yaml
 import torch
 import numpy as np
 from PIL import Image
 from typing import Union
 from ultralytics import YOLO
+import yaml
 import io
 
 # Define the device to be used for computation
@@ -13,6 +15,25 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Initialize YOLO model
 model = YOLO('best.pt')
+
+
+# Function for loading data from yaml file
+def load_yaml(file_path: str) -> dict:
+    """
+    Load YAML file.
+
+    Args:
+        file_path (str): Path to the YAML file.
+
+    Returns:
+        dict: Loaded YAML data.
+    """
+    with open(file_path, 'r') as file:
+        try:
+            data = yaml.safe_load(file)
+            return data
+        except yaml.YAMLError as exc:
+            print(exc)
 
 
 # Function for removing temporary files
@@ -98,7 +119,7 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
 
         # Write uploaded video content to the temporary file
         with open(temp_video_path, "wb") as temp_video_file:
-            temp_video_file.write(uploaded_video.read())
+            temp_video_file.write(uploaded_video.getbuffer())
 
         # Open the uploaded video file
         cap = cv2.VideoCapture(temp_video_path)
@@ -127,6 +148,8 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
         # Release the video capture object and remove the temp file
         cap.release()
         os.remove(temp_video_path)
+
+
 
 
 # Set Streamlit page configuration
@@ -159,6 +182,7 @@ elif source == "Video":
     uploaded_video = st.sidebar.file_uploader("Choose a video...", type=["mp4"])
 
 
+
 # Confidence threshold and max detections sliders
 confidence_threshold = st.sidebar.slider("Confidence Threshold", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
 max_detections = st.sidebar.slider("Max Detections", min_value=1, max_value=500, value=300, step=1)
@@ -170,9 +194,9 @@ if uploaded_image is not None:
     image_detect(image=uploaded_image, confidence_threshold=confidence_threshold,
                  max_detections=max_detections)
 
-elif uploaded_video is not None:
+elif uploaded_video:
     # Object detection for uploaded video
-    video_detect(uploaded_video=uploaded_video, confidence_threshold=confidence_threshold,
+    video_detect(source='video', uploaded_video=uploaded_video, confidence_threshold=confidence_threshold,
                  max_detections=max_detections)
 
     # Remove temporary files
