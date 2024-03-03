@@ -1,16 +1,14 @@
 import streamlit as st
+from utils import *
 import os
-import io
 import cv2
 import yaml
 import torch
 import numpy as np
 from PIL import Image
-import streamlit as st
 from typing import Union
 from ultralytics import YOLO
 import yaml
-from typing import Union
 import io
 
 # Define the device to be used for computation
@@ -74,7 +72,7 @@ def download_image(image: np.ndarray) -> None:
 
 
 # Function for detecting objects in an image
-def image_detect(image: str, confidence_threshold: float, max_detections: int, class_ids: list) -> None:
+def image_detect(image: str, confidence_threshold: float, max_detections: int) -> None:
     """
     Detects objects in an image using YOLO model.
 
@@ -82,14 +80,13 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int, c
         image (str): Path to the input image.
         confidence_threshold (float): Confidence threshold for object detection.
         max_detections (int): Maximum number of detections.
-        class_ids (list): List of class IDs to consider for detection.
     """
     # Open the image
     image = Image.open(image)
 
     # Perform object detection
     results = model.predict(image, conf=confidence_threshold,
-                            max_det=max_detections,classes=class_ids, device=DEVICE)
+                            max_det=max_detections, device=DEVICE)
 
     # Plot the detected objects on the image
     plot = results[0].plot()
@@ -106,7 +103,7 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int, c
 
 # Function for real-time object detection in a video stream
 def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: float,
-                 max_detections: int, class_ids: list) -> None:
+                 max_detections: int) -> None:
     """
     Performs real-time object detection in a video stream.
 
@@ -114,7 +111,6 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
         uploaded_video (Union[None, io.BytesIO]): Uploaded video file.
         confidence_threshold (float): Confidence threshold for object detection.
         max_detections (int): Maximum number of detections.
-        class_ids (list): List of class names to consider for detection.
     """
     
     # Check if a video is uploaded
@@ -129,9 +125,6 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
         # Open the uploaded video file
         cap = cv2.VideoCapture(temp_video_path)
 
-        # Define class indices based on selected names
-        class_indices = [class_names.index(name) for name in class_ids if name in class_names]
-
         # Display for video feed
         stframe = st.empty()
 
@@ -145,7 +138,7 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
             img = Image.fromarray(frame)
 
             # Perform object detection - assuming your model has a similar API to Ultralytics YOLO
-            results = model.predict(img, conf=confidence_threshold, max_det=max_detections, classes=class_indices, device=DEVICE)
+            results = model.predict(img, conf=confidence_threshold, max_det=max_detections, device=DEVICE)
 
             # Visualization and conversion to NumPy for display - assuming results have .render() method
             frame = np.squeeze(results.render())
@@ -156,6 +149,8 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
         # Release the video capture object and remove the temp file
         cap.release()
         os.remove(temp_video_path)
+
+
 
 
 # Set Streamlit page configuration
@@ -190,28 +185,17 @@ elif source == "Video":
 confidence_threshold = st.sidebar.slider("Confidence Threshold", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
 max_detections = st.sidebar.slider("Max Detections", min_value=1, max_value=500, value=300, step=1)
 
-class_names = [
-    "Apple", "Banana", "Beetroot", "Bitter Gourd", "Bottle Gourd", "Cabbage",
-    "Capsicum", "Carrot", "Cauliflower", "Cherry", "Chilli", "Coconut",
-    "Cucumber", "EggPlant", "Ginger", "Grape", "Green Orange", "Kiwi",
-    "Maize", "Mango", "Melon", "Okra", "Onion", "Orange", "Peach", "Pear",
-    "Peas", "Pineapple", "Pomegranate", "Potato", "Radish", "Strawberry",
-    "Tomato", "Turnip", "Watermelon", "Walnut", "Almond"
-]
-
-# Implementing multiselect in Streamlit using the defined list
-selected_class_names = st.sidebar.multiselect('Select classes:', class_names, default=class_names[0])
 
 # Perform object detection based on the selected source
 if uploaded_image is not None:
     # Object detection for uploaded image
     image_detect(image=uploaded_image, confidence_threshold=confidence_threshold,
-                 max_detections=max_detections, class_ids=selected_class_names)
+                 max_detections=max_detections)
 
 elif uploaded_video:
     # Object detection for uploaded video
-    video_detect(uploaded_video=uploaded_video, confidence_threshold=confidence_threshold,
-                 max_detections=max_detections, class_ids=selected_class_names)
+    video_detect(source='video', uploaded_video=uploaded_video, confidence_threshold=confidence_threshold,
+                 max_detections=max_detections)
 
     # Remove temporary files
     remove_temp()
