@@ -1,86 +1,61 @@
 import streamlit as st
-import pandas as pd
-import cv2
-import torch
-import tempfile
-import settings
-import helper
-from pathlib import Path
-from utils.plots import plot_one_box
-from models.experimental import attempt_load
-from utils.general import non_max_suppression
-from utils.general import scale_coords
+from utils import *
+from utils import load_yaml
+from utils import image_detect
+from utils import video_detect
+from utils import remove_temp
+
+# Set Streamlit page configuration
+st.set_page_config(
+    page_title=" Welcome to Nutrivision",
+    page_icon="🍎",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Title for the web app
+st.title("Streamlit Object Tracker with YOLOv8")
+
+# Sidebar for selecting image source
+st.sidebar.title("Model Settings")
+source = st.sidebar.radio("Select source:", ("Image", "Video"))
+
+uploaded_image = None
+uploaded_video = None
+youtube_url = None
+
+# Widget for uploading files
+if source == "Image":
+    uploaded_image = st.sidebar.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+
+elif source == "Video":
+    uploaded_video = st.sidebar.file_uploader("Choose a video...", type=["mp4"])
 
 
 
-def draw_labels_and_boxes(image, detections, class_names):
-    for detection in detections:
-        x_min, y_min, x_max, y_max, conf, cls_id = detection[:6]
-        label = class_names[int(cls_id)]
-        color = (0, 255, 0)  # Green color for bounding box
-        cv2.rectangle(image, (int(x_min), int(y_min)), (int(x_max), int(y_max)), color, 2)
-        cv2.putText(image, f'{label} {conf:.2f}', (int(x_min), int(y_min) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
-    return image
+# Confidence threshold and max detections sliders
+confidence_threshold = st.sidebar.slider("Confidence Threshold", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
+max_detections = st.sidebar.slider("Max Detections", min_value=1, max_value=500, value=300, step=1)
 
-def main():
-    CLASSES = [
-        "Apple", "Banana", "Beetroot", "Bitter Gourd", "Bottle Gourd", "Cabbage",
-        "Capsicum", "Carrot", "Cauliflower", "Cherry", "Chilli", "Coconut",
-        "Cucumber", "EggPlant", "Ginger", "Grape", "Green Orange", "Kiwi",
-        "Maize", "Mango", "Melon", "Okra", "Onion", "Orange", "Peach", "Pear",
-        "Peas", "Pineapple", "Pomegranate", "Potato", "Radish", "Strawberry",
-        "Tomato", "Turnip", "Watermelon", "Walnut", "Almond"
-    ]
-    st.title('Fruit Detection in Video')
-    uploaded_file = st.file_uploader("Choose a video...", type=["mp4", "avi"])
+# Add a multiselect widget
+classes = load_yaml('classes.yaml')
+class_names = list(classes.values())
+selected_class_names = st.sidebar.multiselect('Select classes:', class_names, placeholder='Choose a class')
 
-    # Assuming the model path is correctly set to where you uploaded your model
-    model_path = 'best.pt'  # Adjust this to your model's upload path
+# Convert selected names back to corresponding class IDs
+selected_class_ids = [class_id for class_id, class_name in classes.items() if class_name in selected_class_names]
 
-    # Load the YOLO model
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = attempt_load(model_path, map_location=device)  # Load your model
-    model.eval()
 
-    if uploaded_file is not None:
-        tfile = tempfile.NamedTemporaryFile(delete=False) 
-        tfile.write(uploaded_file.read())
+# Perform object detection based on the selected source
+if uploaded_image is not None:
+    # Object detection for uploaded image
+    image_detect(image=uploaded_image, confidence_threshold=confidence_threshold,
+                 max_detections=max_detections, class_ids=selected_class_ids)
 
-        vid = cv2.VideoCapture(tfile.name)
+elif uploaded_video:
+    # Object detection for uploaded video
+    video_detect(source='video', uploaded_video=uploaded_video, confidence_threshold=confidence_threshold,
+                 max_detections=max_detections, class_ids=selected_class_ids)
 
-        while vid.isOpened():
-            ret, frame = vid.read()
-            if not ret:
-                break
-
-            # Preprocess the frame for YOLO model
-            # This part might need adjustments based on how you trained your model
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            img = torch.from_numpy(frame_rgb).to(device)
-            img = img.float()  # uint8 to fp16/32
-            img /= 255.0  # 0 - 255 to 0.0 - 1.0
-            if img.ndimension() == 3:
-                img = img.unsqueeze(0)
-
-            # Inference
-            pred = model(img, augment=False)[0]
-            pred = non_max_suppression(pred, 0.25, 0.45, classes=None, agnostic=False)
-
-            # Parse detections (adjust based on your needs)
-            for i, det in enumerate(pred):  # detections per image
-                if len(det):
-                    # Rescale boxes from img_size to frame size
-                    det[:, :4] = scale_coords(img.shape[2:], det[:, :4], frame.shape).round()
-
-                    # Print results
-                    for *xyxy, conf, cls in det:
-                        label = f'{CLASSES[int(cls)]} {conf:.2f}'
-                        plot_one_box(xyxy, frame, label=label, color=(255, 0, 0), line_thickness=3)
-
-            # Display frame
-            st.image(frame)
-
-        vid.release()
-
-if __name__ == "__main__":
-    main()
+    # Remove temporary files
+    remove_temp()
