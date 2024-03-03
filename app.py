@@ -69,12 +69,12 @@ def main():
 
         if len(results.xyxy[0]) > 0:
     # Iterate over detections
-        for detection in results.xyxy[0]:
+            for detection in results.xyxy[0]:
         # Unpack detection tensor, converting tensor elements to Python scalars with .item()
-            x_min, y_min, x_max, y_max, conf, cls_id = detection[:6].cpu().numpy()
-            label = CLASSES[int(cls_id)]  # Get the class label using detected class ID
+                x_min, y_min, x_max, y_max, conf, cls_id = detection[:6].cpu().numpy()
+                label = CLASSES[int(cls_id)]  # Get the class label using detected class ID
         # Append detection info to your DataFrame as before
-            detections_df = detections_df.append({
+                detections_df = detections_df.append({
             'Frame': frame_number,
             'Fruit': label,
             'Confidence': conf,
@@ -83,9 +83,9 @@ def main():
             'x2': x_max,
             'y2': y_max
             }, ignore_index=True)
-        else:
+            else:
     # Handle cases with no detections
-            print("No detections")
+                print("No detections")
             
 
         st.dataframe(detections_df)
