@@ -17,24 +17,13 @@ model = YOLO('best.pt')
 
 # Function for removing temporary files
 def remove_temp(temp_file: str = 'temp') -> None:
-    """
-    Remove all files in the specified temporary directory.
-
-    Args:
-        temp_file (str, optional): Path to the temporary directory. Defaults to 'temp'.
-    """
+    
     for file in os.listdir(temp_file):
         os.remove(os.path.join(temp_file, file))
 
 
 # Function for downloading an image with detected objects
 def download_image(image: np.ndarray) -> None:
-    """
-    Downloads the image with detected objects.
-
-    Args:
-        image (np.ndarray): Image array with detected objects.
-    """
     # Convert NumPy array to PIL.Image object
     image = Image.fromarray(image)
 
@@ -51,14 +40,7 @@ def download_image(image: np.ndarray) -> None:
 
 # Function for detecting objects in an image
 def image_detect(image: str, confidence_threshold: float, max_detections: int) -> None:
-    """
-    Detects objects in an image using YOLO model.
-
-    Args:
-        image (str): Path to the input image.
-        confidence_threshold (float): Confidence threshold for object detection.
-        max_detections (int): Maximum number of detections.
-    """
+    
     # Open the image
     image = Image.open(image)
 
@@ -82,14 +64,6 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int) -
 # Function for real-time object detection in a video stream
 def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: float,
                  max_detections: int) -> None:
-    """
-    Performs real-time object detection in a video stream.
-
-    Args:
-        uploaded_video (Union[None, io.BytesIO]): Uploaded video file.
-        confidence_threshold (float): Confidence threshold for object detection.
-        max_detections (int): Maximum number of detections.
-    """
     
     # Check if a video is uploaded
     if uploaded_video is not None:
@@ -137,8 +111,6 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
 
 
 
-
-# Set Streamlit page configuration
 st.set_page_config(
     page_title=" Welcome to Nutrivision",
     page_icon="🍎",
@@ -146,11 +118,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Title for the web app
 st.title("Welcome to Nutrivision!")
 
-# Sidebar for selecting image source
-#insert image "logo.jpg" into sidebar
+
 image = Image.open('logo.jpg')
 st.sidebar.image(image, use_column_width=True)
 st.sidebar.title("Model Settings")
@@ -170,19 +140,18 @@ elif source == "Video":
 
 # Confidence threshold and max detections sliders
 confidence_threshold = st.sidebar.slider("Confidence Threshold", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
-max_detections = st.sidebar.slider("Max Detections", min_value=1, max_value=500, value=300, step=1)
 
 
 # Perform object detection based on the selected source
 if uploaded_image is not None:
     # Object detection for uploaded image
-    image_detect(image=uploaded_image, confidence_threshold=confidence_threshold,
-                 max_detections=max_detections)
+    image_detect(image=uploaded_image, confidence_threshold=confidence_threshold
+                 )
 
 elif uploaded_video is not None:
     # Object detection for uploaded video
-    video_detect(uploaded_video=uploaded_video, confidence_threshold=confidence_threshold,
-                 max_detections=max_detections)
+    video_detect(uploaded_video=uploaded_video, confidence_threshold=confidence_threshold
+                 )
 
     # Remove temporary files
     remove_temp()
