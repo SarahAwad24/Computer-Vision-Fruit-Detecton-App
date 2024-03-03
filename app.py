@@ -171,7 +171,6 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
                         fruits.append(name)
                         print(fruits)
             out.write(frame)
-            stframe.image(frame, channels="BGR", use_column_width=True)
 
         # Release the video capture object and remove the temp file
         cap.release()
