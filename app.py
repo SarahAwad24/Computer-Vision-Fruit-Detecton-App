@@ -185,13 +185,7 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
 
         os.remove(temp_video_path)
 
-    col1, col2 = st.columns(2)
-
-    with col1:
-        # Show the original video
-        st.video(uploaded_video, start_time=0)
-    with col2:
-        st.video(output_video_path, start_time=0)
+    
 
         # Button to get labels and fruits
     if st.button("Get Labels and Fruits"):
