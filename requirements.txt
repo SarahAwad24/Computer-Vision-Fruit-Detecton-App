@@ -13,3 +13,7 @@ pydub==0.25.1
 twilio~=8.10.1
 ultralytics
 tkinter
+opencv-python-headless  # or opencv-python but headless is often better for server environments
+pandas
+numpy
+Pillow

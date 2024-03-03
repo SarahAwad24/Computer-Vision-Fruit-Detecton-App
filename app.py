@@ -6,6 +6,9 @@ import tempfile
 import settings
 import helper
 from pathlib import Path
+from utils.plots import plot_one_box
+from models.experimental import attempt_load
+from utils.general import non_max_suppression
 
 
 
@@ -27,51 +30,56 @@ def main():
         "Peas", "Pineapple", "Pomegranate", "Potato", "Radish", "Strawberry",
         "Tomato", "Turnip", "Watermelon", "Walnut", "Almond"
     ]
-
     st.title('Fruit Detection in Video')
     uploaded_file = st.file_uploader("Choose a video...", type=["mp4", "avi"])
 
-    model_path = Path(settings.DETECTION_MODEL)
+    # Assuming the model path is correctly set to where you uploaded your model
+    model_path = 'path/to/best (2).pt'  # Adjust this to your model's upload path
 
-    try:
-        model = helper.load_model(model_path)
-    except Exception as ex:
-        st.error(f"Unable to load model. Check the specified path: {model_path}")
-        st.error(ex)
-        return
+    # Load the YOLO model
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = attempt_load(model_path, map_location=device)  # Load your model
+    model.eval()
 
     if uploaded_file is not None:
         tfile = tempfile.NamedTemporaryFile(delete=False) 
         tfile.write(uploaded_file.read())
 
         vid = cv2.VideoCapture(tfile.name)
-        width = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        fps = vid.get(cv2.CAP_PROP_FPS)
 
-        # Define the codec and create VideoWriter object
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # or 'XVID'
-        out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height))
-
-        while True:
+        while vid.isOpened():
             ret, frame = vid.read()
             if not ret:
                 break
 
+            # Preprocess the frame for YOLO model
+            # This part might need adjustments based on how you trained your model
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            results = model(frame_rgb)
+            img = torch.from_numpy(frame_rgb).to(device)
+            img = img.float()  # uint8 to fp16/32
+            img /= 255.0  # 0 - 255 to 0.0 - 1.0
+            if img.ndimension() == 3:
+                img = img.unsqueeze(0)
 
-            if len(results.xyxy[0]) > 0:
-                annotated_frame = draw_labels_and_boxes(frame, results.xyxy[0].cpu().numpy(), CLASSES)
-                out.write(annotated_frame)
-            else:
-                out.write(frame)  # Write original frame if no detections
+            # Inference
+            pred = model(img, augment=False)[0]
+            pred = non_max_suppression(pred, 0.25, 0.45, classes=None, agnostic=False)
+
+            # Parse detections (adjust based on your needs)
+            for i, det in enumerate(pred):  # detections per image
+                if len(det):
+                    # Rescale boxes from img_size to frame size
+                    det[:, :4] = scale_coords(img.shape[2:], det[:, :4], frame.shape).round()
+
+                    # Print results
+                    for *xyxy, conf, cls in det:
+                        label = f'{CLASSES[int(cls)]} {conf:.2f}'
+                        plot_one_box(xyxy, frame, label=label, color=(255, 0, 0), line_thickness=3)
+
+            # Display frame
+            st.image(frame)
 
         vid.release()
-        out.release()
-
-        # Display the processed video
-        st.video('output.mp4')
 
 if __name__ == "__main__":
     main()
