@@ -100,8 +100,8 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int) -
     # Button to get labels and fruits
     if st.button("Get Labels and Fruits"):
         labels, fruits = get_labels_and_fruits(results)
-        st.write("Detected Labels:", labels)
-        st.write("Detected Fruits:", fruits)
+        st.write("<div style='text-align: center;'>Detected Fruits:</div>", unsafe_allow_html=True)
+        st.write(fruits)
 
 
 # Function for real-time object detection in a video stream
@@ -166,6 +166,8 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
         # Release the video capture object and remove the temp file
         cap.release()
         os.remove(temp_video_path)
+
+    
 
         # Button to get labels and fruits
         if st.button("Get Labels and Fruits"):
