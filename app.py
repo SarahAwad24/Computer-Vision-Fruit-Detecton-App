@@ -97,10 +97,17 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int) -
     # Offer download option for the detected image
     download_image(processed_image)
 
-    # Button to get labels and fruits
     if st.button("Get Labels and Fruits"):
         labels, fruits = get_labels_and_fruits(results)
-        st.write("Detected Fruits:", fruits)
+    
+    # Convert labels and fruits to pandas Series for a nicer display
+        labels_series = pd.Series(labels, name="Detected Labels")
+        fruits_series = pd.Series(fruits, name="Detected Fruits")
+
+    # Display as tables
+        st.table(labels_series.to_frame())
+        st.table(fruits_series.to_frame())
+
         goal_dicc = {
                 '1': 'lose weight',
                 '2': 'gain weight',
@@ -109,6 +116,8 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int) -
             
         st.radio("Select your goal", list(goal_dicc.keys()), format_func=lambda x: goal_dicc[x], horizontal=True)
 
+    # Button to get labels and fruits
+    
 # Function for real-time object detection in a video stream
 def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: float,
                  max_detections: int) -> None:
