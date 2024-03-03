@@ -171,7 +171,13 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
                         fruits.append(name)
                         print(fruits)
             out.write(frame)
-            
+            col1, col2 = st.columns(2)
+
+            with col1:
+        # Show the original video
+                st.video(uploaded_video, start_time=0)
+            with col2:
+                stframe.image(frame, channels="BGR", use_column_width=True)
 
         # Release the video capture object and remove the temp file
         cap.release()
@@ -185,7 +191,7 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
         # Show the original video
         st.video(uploaded_video, start_time=0)
     with col2:
-        stframe.image(frame, channels="BGR", use_column_width=True)
+        st.video(output_video_path, start_time=0)
 
         # Button to get labels and fruits
     if st.button("Get Labels and Fruits"):
