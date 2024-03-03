@@ -84,11 +84,15 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int) -
     # Convert color space from BGR to RGB
     processed_image = cv2.cvtColor(plot, cv2.COLOR_BGR2RGB)
 
-    # Display the original image
-    st.image(image, caption='Uploaded Image', use_column_width=True)
+    col1, col2 = st.columns(2)
 
-    # Display the detected image
-    st.image(processed_image, caption='Detected Image.', use_column_width=True)
+    with col1:
+        # Show the original image
+        st.image(image, caption='Original Image.', use_column_width='auto', output_format='auto', width=None)
+
+    with col2:
+    # Show the detected image
+        st.image(processed_image, caption='Detected Image.', use_column_width='auto', output_format='auto', width=None)
 
     # Offer download option for the detected image
     download_image(processed_image)
