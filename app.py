@@ -179,11 +179,13 @@ def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: 
 
         # Button to get labels and fruits
     
-    if st.button("Get Labels and Fruits"):
-        labels, fruits = get_labels_and_fruits(results)
-        st.write("Detected Labels:", labels)
-        st.write("Detected Fruits:", fruits)
+        if st.button("Get Labels and Fruits"):
+            fruits_series = pd.Series(fruits, name="Detected Fruits")
+            joblib.dump(fruits, 'fruits.joblib')
+            st.table(fruits_series.to_frame())
 
+        if st.button("Create Smoothie"):
+            st.switch_page('pages/smoothie.py')
 
 def get_labels_and_fruits(results):
     labels = []
