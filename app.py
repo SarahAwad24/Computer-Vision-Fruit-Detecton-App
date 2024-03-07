@@ -8,7 +8,7 @@ from typing import Union
 from ultralytics import YOLO
 import io
 import pandas as pd
-
+import joblib
 from ultralytics.utils.plotting import Annotator
 
 # Define the device to be used for computation
@@ -98,21 +98,17 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int) -
     download_image(processed_image)
 
     if st.button("Get Labels and Fruits"):
-        labels, fruits = get_labels_and_fruits(results)
-    
+        labels, FRUITS = get_labels_and_fruits(results)
+        joblib.dump(FRUITS, 'fruits.joblib')
     # Convert labels and fruits to pandas Series for a nicer display
-        fruits_series = pd.Series(fruits, name="Detected Fruits")
-
+        fruits_series = pd.Series(FRUITS, name="Detected Fruits")
+        print(FRUITS)
     # Display as tables
         st.table(fruits_series.to_frame())
 
-        goal_dicc = {
-                '1': 'lose weight',
-                '2': 'gain weight',
-                '3': 'maintain weight'
-            }
-            
-        st.radio("Select your goal", list(goal_dicc.keys()), format_func=lambda x: goal_dicc[x], horizontal=True)
+    if st.button("Create Smoothie"):
+
+        st.switch_page('pages/smoothie.py')
 
     # Button to get labels and fruits
     
