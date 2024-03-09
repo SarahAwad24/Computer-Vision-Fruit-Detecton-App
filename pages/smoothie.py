@@ -4,9 +4,10 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
-client = OpenAI(api_key=os.getenv('OPENAI'))
-OPENAI = 'OPENAI'
+#load_dotenv()
+#client = OpenAI(api_key=os.getenv('OPENAI'))
+OPENAI = os.environ['OPENAI']
+
 client = st.secrets['OPENAI']
 
 st.title('Create your Smoothie!')
