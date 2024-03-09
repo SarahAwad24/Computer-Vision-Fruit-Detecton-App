@@ -1,6 +1,6 @@
 import streamlit as st
 import joblib
-from openai import OpenAI
+import OpenAI
 from dotenv import load_dotenv
 import os
 
