@@ -6,6 +6,8 @@ import os
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv('OPENAI'))
+OPENAI = 'OPENAI'
+client = st.secrets['OPENAI']
 
 st.title('Create your Smoothie!')
 
