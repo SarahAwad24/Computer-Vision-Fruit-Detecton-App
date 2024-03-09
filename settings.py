@@ -12,10 +12,8 @@ if root_path not in sys.path:
     sys.path.append(str(root_path))
 
 # Get the relative path of the root directory with respect to the current working directory
-ROOT = root_path.relative_to(Path.cwd())
 
 # ML Model config
 DETECTION_MODEL = 'best.pt'
 
 # Webcam
-WEBCAM_PATH = 0
