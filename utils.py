@@ -7,9 +7,9 @@ import numpy as np
 from PIL import Image
 import streamlit as st
 from typing import Union
-from pytube import YouTube
 from ultralytics import YOLO
 import yaml
+import streamlit as st
 
 # Define the device to be used for computation
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -103,29 +103,70 @@ def image_detect(image: str, confidence_threshold: float, max_detections: int, c
 
 
 # Function for real-time object detection in a video stream
-def video_detect(source: str, uploaded_video: Union[None, io.BytesIO], confidence_threshold: float,
+def video_detect(uploaded_video: Union[None, io.BytesIO], confidence_threshold: float,
                  max_detections: int, class_ids: list) -> None:
     """
     Performs real-time object detection in a video stream.
 
     Args:
-        source (str): Video source
         uploaded_video (Union[None, io.BytesIO, str]): Uploaded video file.
         confidence_threshold (float): Confidence threshold for object detection.
         max_detections (int): Maximum number of detections.
         class_ids (list): List of class IDs to consider for detection.
     """
-    # Display for video feed
-    video_feed = st.empty()
 
-    # Check if a video is uploaded or using webcam
-    if source == "video":
+    # Ensure there is a video file uploaded
+    if uploaded_video is not None:
         # Create a temporary file to save the uploaded video
-        temp_video_path = f"temp/temp_{uploaded_video.name}"
-
+        temp_video_path = f"temp_video.mp4"
+        
         # Write uploaded video content to the temporary file
         with open(temp_video_path, "wb") as temp_video_file:
-            temp_video_file.write(uploaded_video.getvalue())
+            temp_video_file.write(uploaded_video.getbuffer())  # Using getbuffer for BytesIO object
 
         # Open the uploaded video file
         cap = cv2.VideoCapture(temp_video_path)
+
+        # Width and height for cv2.VideoWriter
+        frame_width = int(cap.get(3))
+        frame_height = int(cap.get(4))
+        
+        # Define the codec and create VideoWriter object to save the output video
+        out = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame_width, frame_height))
+        
+        # Process the video frame by frame
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+            
+            # Convert the frame to image format understood by the model
+            img = Image.fromarray(frame)
+
+            # Perform object detection
+            # Define the video_feed object
+            video_feed = st.empty()
+
+            results = model.predict(img, conf=confidence_threshold,
+                                    max_det=max_detections, classes=class_ids, device=DEVICE)
+
+            # Process the results and draw bounding boxes on the frame
+            # Note: You'll need to adapt this if your model.predict doesn't return the expected format
+            for result in results:
+                # Example: Extract bounding box coordinates, labels, and confidence scores
+                # and draw them on `frame`. This part highly depends on your `model.predict` output format.
+                pass  # Adapt based on your model's specific output format.
+
+            # Write the frame into the file 'output.avi'
+            out.write(frame)
+
+            # Display the frame
+            video_feed.image(frame, channels="BGR", use_column_width=True)
+
+        # Release everything when job is finished
+        cap.release()
+        out.release()
+        cv2.destroyAllWindows()
+
+        # Display the output video
+        st.video('output.avi')
